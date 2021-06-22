@@ -19,65 +19,52 @@
 using GLib;
 using Gtk;
 
-namespace Appmenu
-{
-    public enum ModelType
-    {
+namespace Appmenu {
+    public enum ModelType {
         NONE,
         STUB,
         DESKTOP,
         MENUMODEL,
         DBUSMENU
     }
-    internal abstract class Helper: Object
-    {
-
-    }
-    public abstract class Backend : Object
-    {
+    internal abstract class Helper : Object {}
+    public abstract class Backend : Object {
         protected ModelType type = ModelType.NONE;
         protected static DBusMenuRegistrarProxy proxy;
-        static construct
-        {
-            proxy = new DBusMenuRegistrarProxy();
+        static construct {
+            proxy = new DBusMenuRegistrarProxy ();
         }
-        construct
-        {
-            try
-            {
-                var con = Bus.get_sync(BusType.SESSION);
-                con.call.begin(
+        construct {
+            try {
+                var con = Bus.get_sync (BusType.SESSION);
+                con.call.begin (
                     "org.valapanel.AppMenu.Registrar",
                     "/Registrar",
                     "org.valapanel.AppMenu.Registrar",
                     "Reference",
-                    null,null,
+                    null, null,
                     DBusCallFlags.NONE, -1);
-            }
-            catch(Error e)
-            {
-                stderr.printf("%s\n",e.message);
+            } catch (Error e) {
+                stderr.printf ("%s\n", e.message);
             }
         }
-        ~Backend()
-        {
-            try
-            {
-                var con = Bus.get_sync(BusType.SESSION,null);
-                con.call.begin(
+        ~Backend () {
+            try {
+                var con = Bus.get_sync (BusType.SESSION, null);
+                con.call.begin (
                     "org.valapanel.AppMenu.Registrar",
                     "/Registrar",
                     "org.valapanel.AppMenu.Registrar",
                     "UnReference",
-                    null,null,
+                    null, null,
                     DBusCallFlags.NO_AUTO_START, -1);
-            }
-            catch(Error e)
-            {
-                stderr.printf("%s\n",e.message);
+            } catch (Error e) {
+                stderr.printf ("%s\n", e.message);
             }
         }
-        public signal void active_model_changed();
-        public abstract void set_active_window_menu(MenuWidget widget);
+
+        public signal void active_model_changed ();
+        public abstract void set_active_window_menu (MenuWidget widget);
+
     }
 }

@@ -19,59 +19,53 @@
 using GLib;
 using Gtk;
 
-namespace Appmenu
-{
-    internal class MenuModelHelper: Helper
-    {
+namespace Appmenu {
+    internal class MenuModelHelper : Helper {
         private Helper dbus_helper = null;
-        public MenuModelHelper(MenuWidget w,
-                               string? gtk_unique_bus_name,
-                               string? app_menu_path,
-                               string? menubar_path,
-                               string? application_path,
-                               string? window_path,
-                               string? unity_path,
-                               string? title,
-                               DesktopAppInfo? info)
-        {
+        public MenuModelHelper (MenuWidget w,
+                                string? gtk_unique_bus_name,
+                                string? app_menu_path,
+                                string? menubar_path,
+                                string? application_path,
+                                string? window_path,
+                                string? unity_path,
+                                string? title,
+                                DesktopAppInfo? info) {
             GLib.ActionGroup? appmenu_actions = null;
             GLib.ActionGroup? menubar_actions = null;
             GLib.ActionGroup? unity_actions = null;
             DBusConnection? dbusconn = null;
             try {
-                dbusconn = Bus.get_sync(BusType.SESSION);
+                dbusconn = Bus.get_sync (BusType.SESSION);
             } catch (Error e) {
-                stderr.printf("%s\n",e.message);
+                stderr.printf ("%s\n", e.message);
                 return;
             }
             if (application_path != null)
-                appmenu_actions = DBusActionGroup.get(dbusconn,gtk_unique_bus_name,application_path);
+                appmenu_actions = DBusActionGroup.get (dbusconn, gtk_unique_bus_name, application_path);
             if (unity_path != null)
-                unity_actions = DBusActionGroup.get(dbusconn,gtk_unique_bus_name,unity_path);
+                unity_actions = DBusActionGroup.get (dbusconn, gtk_unique_bus_name, unity_path);
             if (window_path != null)
-                menubar_actions = DBusActionGroup.get(dbusconn,gtk_unique_bus_name,window_path);
+                menubar_actions = DBusActionGroup.get (dbusconn, gtk_unique_bus_name, window_path);
             GLib.MenuModel? appmenu = null;
-            if (app_menu_path != null)
-            {
-                appmenu = new GLib.Menu();
-                (appmenu as GLib.Menu).append_submenu(title,DBusMenuModel.get(dbusconn,gtk_unique_bus_name,app_menu_path));
-                w.set_appmenu(appmenu);
-            }
-            else
-                dbus_helper = new DBusAppMenu(w, title, gtk_unique_bus_name, info);
-            if (menubar_path != null)
-            {
-                var menubar = DBusMenuModel.get(dbusconn,gtk_unique_bus_name,menubar_path);
-                w.set_menubar(menubar);
-            }
-            else
-                w.set_menubar(null);
+            if (app_menu_path != null) {
+                appmenu = new GLib.Menu ();
+                (appmenu as GLib.Menu).append_submenu (title, DBusMenuModel.get (dbusconn, gtk_unique_bus_name, app_menu_path));
+                w.set_appmenu (appmenu);
+            } else
+                dbus_helper = new DBusAppMenu (w, title, gtk_unique_bus_name, info);
+            if (menubar_path != null) {
+                var menubar = DBusMenuModel.get (dbusconn, gtk_unique_bus_name, menubar_path);
+                w.set_menubar (menubar);
+            } else
+                w.set_menubar (null);
             if (appmenu_actions != null)
-                w.insert_action_group("app",appmenu_actions);
+                w.insert_action_group ("app", appmenu_actions);
             if (menubar_actions != null)
-                w.insert_action_group("win",menubar_actions);
+                w.insert_action_group ("win", menubar_actions);
             if (unity_actions != null)
-                w.insert_action_group("unity",unity_actions);
+                w.insert_action_group ("unity", unity_actions);
         }
+
     }
 }

@@ -19,27 +19,25 @@
 using GLib;
 using Gtk;
 
-namespace Appmenu
-{
-    internal class DBusMenuHelper: Helper
-    {
+namespace Appmenu {
+    internal class DBusMenuHelper : Helper {
         private DBusMenu.Importer importer = null;
         private Helper dbus_helper = null;
         private ulong connect_handler = 0;
-        public DBusMenuHelper(MenuWidget w, string name, ObjectPath path, string? title, DesktopAppInfo? info)
-        {
-            dbus_helper = new DBusAppMenu(w, title, name, info);
-            importer = new DBusMenu.Importer(name,(string)path);
-            connect_handler = Signal.connect(importer,"notify::model",(GLib.Callback)on_model_changed_cb,w);
+        public DBusMenuHelper (MenuWidget w, string name, ObjectPath path, string? title, DesktopAppInfo? info) {
+            dbus_helper = new DBusAppMenu (w, title, name, info);
+            importer = new DBusMenu.Importer (name, (string) path);
+            connect_handler = Signal.connect (importer, "notify::model", (GLib.Callback)on_model_changed_cb, w);
         }
-        private static void on_model_changed_cb(DBusMenu.Importer importer, GLib.ParamSpec pspec, MenuWidget w)
-        {
-            w.insert_action_group("dbusmenu",importer.action_group);
-            w.set_menubar(importer.model);
+
+        private static void on_model_changed_cb (DBusMenu.Importer importer, GLib.ParamSpec pspec, MenuWidget w) {
+            w.insert_action_group ("dbusmenu", importer.action_group);
+            w.set_menubar (importer.model);
         }
-        ~DBusMenuHelper()
-        {
-            importer.disconnect(connect_handler);
+
+        ~DBusMenuHelper () {
+            importer.disconnect (connect_handler);
         }
+
     }
 }

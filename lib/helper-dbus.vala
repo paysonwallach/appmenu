@@ -19,20 +19,19 @@
 using GLib;
 using Gtk;
 
-namespace Appmenu
-{
+namespace Appmenu {
     public const string DBUS_DEFAULT_PATH = "/org/freedesktop/DBus";
-    public const string DBUS_DEFAULT_NAME= "org.freedesktop.DBus";
+    public const string DBUS_DEFAULT_NAME = "org.freedesktop.DBus";
     [DBus (name = "org.freedesktop.DBus")]
-    public interface DBusMain : DBusProxy
-    {
+    public interface DBusMain : DBusProxy {
         [DBus (name = "GetConnectionUnixProcessID")]
-        public abstract uint get_connection_unix_process_id(string id) throws Error;
-        public abstract int start_service_by_name(string service, int flags) throws Error;
-        public abstract string[] list_activatable_names() throws Error;
+        public abstract uint get_connection_unix_process_id (string id) throws Error;
+        public abstract int start_service_by_name (string service, int flags) throws Error;
+
+        public abstract string[] list_activatable_names () throws Error;
+
     }
-    internal class DBusAppMenu : Helper
-    {
+    internal class DBusAppMenu : Helper {
         private const string UNITY_QUICKLISTS_KEY = "X-Ayatana-Desktop-Shortcuts";
         private const string UNITY_QUICKLISTS_SHORTCUT_GROUP_NAME = "%s Shortcut Group";
         private const string UNITY_QUICKLISTS_TARGET_KEY = "TargetEnvironment";
@@ -43,113 +42,105 @@ namespace Appmenu
         private DesktopAppInfo? info = null;
         private string? connection = null;
         private unowned MenuWidget widget;
-        private GLib.Menu all_menu = new GLib.Menu();
+        private GLib.Menu all_menu = new GLib.Menu ();
 
         private const GLib.ActionEntry[] entries =
         {
-            {"new", activate_new, null, null, null},
-            {"activate-action", activate_action, "s", null, null},
-            {"activate-unity-desktop-shortcut",activate_unity,"s",null,null},
-            {"quit", activate_quit, null, null, null},
+            { "new", activate_new, null, null, null },
+            { "activate-action", activate_action, "s", null, null },
+            { "activate-unity-desktop-shortcut", activate_unity, "s", null, null },
+            { "quit", activate_quit, null, null, null },
         };
-        construct
-        {
+        construct {
             try {
-                dbus = Bus.get_proxy_sync(BusType.SESSION, DBUS_DEFAULT_NAME, DBUS_DEFAULT_PATH);
+                dbus = Bus.get_proxy_sync (BusType.SESSION, DBUS_DEFAULT_NAME, DBUS_DEFAULT_PATH);
             } catch (Error e) {
-                debug("%s\n",e.message);
+                debug ("%s\n", e.message);
             }
         }
-        public DBusAppMenu(MenuWidget w, string? name, string? connection, DesktopAppInfo? info)
-        {
+        public DBusAppMenu (MenuWidget w, string? name, string? connection, DesktopAppInfo? info) {
             this.widget = w;
-            var configurator = new SimpleActionGroup();
-            configurator.add_action_entries(entries,this);
-            var builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-menus.ui");
-            builder.set_translation_domain(Config.GETTEXT_PACKAGE);
-            unowned GLib.Menu menu = builder.get_object("appmenu-stub") as GLib.Menu;
-            if(connection != null)
+            var configurator = new SimpleActionGroup ();
+            configurator.add_action_entries (entries, this);
+            var builder = new Builder.from_resource ("/org/vala-panel/appmenu/desktop-menus.ui");
+            builder.set_translation_domain (Config.GETTEXT_PACKAGE);
+            unowned GLib.Menu menu = builder.get_object ("appmenu-stub") as GLib.Menu;
+            if (connection != null)
                 this.connection = connection;
             else
-                (configurator.lookup_action("quit") as SimpleAction).set_enabled(false);
-            if (info != null)
-            {
+                (configurator.lookup_action ("quit") as SimpleAction).set_enabled (false);
+            if (info != null) {
                 this.info = info;
-                unowned GLib.Menu section = builder.get_object("desktop-actions") as GLib.Menu;
-                foreach(unowned string action in info.list_actions())
-                    section.append(info.get_action_name(action),"conf.activate-action('%s')".printf(action));
-                section.freeze();
-                try{
-                    section = builder.get_object("unity-actions") as GLib.Menu;
-                    var keyfile = new KeyFile();
-                    keyfile.load_from_file(info.get_filename(),KeyFileFlags.NONE);
-                    var unity_list = keyfile.get_string_list(KeyFileDesktop.GROUP,UNITY_QUICKLISTS_KEY);
-                    foreach(unowned string action in unity_list)
-                    {
-                        var action_name = keyfile.get_locale_string(UNITY_QUICKLISTS_SHORTCUT_GROUP_NAME.printf(action),KeyFileDesktop.KEY_NAME);
-                        section.append(action_name,"conf.activate-unity-desktop-shortcut('%s')".printf(action));
+                unowned GLib.Menu section = builder.get_object ("desktop-actions") as GLib.Menu;
+                foreach (unowned string action in info.list_actions ())
+                    section.append (info.get_action_name (action), "conf.activate-action('%s')".printf (action));
+                section.freeze ();
+                try {
+                    section = builder.get_object ("unity-actions") as GLib.Menu;
+                    var keyfile = new KeyFile ();
+                    keyfile.load_from_file (info.get_filename (), KeyFileFlags.NONE);
+                    var unity_list = keyfile.get_string_list (KeyFileDesktop.GROUP, UNITY_QUICKLISTS_KEY);
+                    foreach (unowned string action in unity_list) {
+                        var action_name = keyfile.get_locale_string (UNITY_QUICKLISTS_SHORTCUT_GROUP_NAME.printf (action), KeyFileDesktop.KEY_NAME);
+                        section.append (action_name, "conf.activate-unity-desktop-shortcut('%s')".printf (action));
                     }
-                    section.freeze();
+                    section.freeze ();
                 } catch (Error e) {
-                    debug("%s\n",e.message);
+                    debug ("%s\n", e.message);
                 }
-            }
-            else if (connection == null)
-            {
-                (configurator.lookup_action("new") as SimpleAction).set_enabled(false);
+            } else if (connection == null)   {
+                (configurator.lookup_action ("new") as SimpleAction).set_enabled (false);
             }
             string res_name = name ?? _("Application");
             if (name.length >= 28)
-                res_name = name[0:25]+"...";
-            all_menu.append_submenu(res_name,menu);
-            all_menu.freeze();
-            widget.insert_action_group("conf",configurator);
-            widget.set_appmenu(all_menu);
+                res_name = name[0 : 25] + "...";
+            all_menu.append_submenu (res_name, menu);
+            all_menu.freeze ();
+            widget.insert_action_group ("conf", configurator);
+            widget.set_appmenu (all_menu);
         }
-        private void activate_new(GLib.SimpleAction action, Variant? param)
-        {
-            if (info != null)
-            {
-                MenuMaker.launch(info,new List<string>(),widget);
-            }
-            else if (connection != null)
-            {
+
+        private void activate_new (GLib.SimpleAction action, Variant? param) {
+            if (info != null) {
+                MenuMaker.launch (info, new List<string>(), widget);
+            } else if (connection != null)   {
                 //FIXME: Now using only first part, not parameters
                 try {
-                    string str = "/proc/%u/cmdline".printf(dbus.get_connection_unix_process_id(this.connection));
-                    string exec = Launcher.posix_get_cmdline_string(str);
-                    var appinfo  = AppInfo.create_from_commandline(exec,null,0) as DesktopAppInfo;
-                    MenuMaker.launch(appinfo,new List<string>(),widget);
+                    string str = "/proc/%u/cmdline".printf (dbus.get_connection_unix_process_id (this.connection));
+                    string exec = Launcher.posix_get_cmdline_string (str);
+                    var appinfo = AppInfo.create_from_commandline (exec, null, 0) as DesktopAppInfo;
+                    MenuMaker.launch (appinfo, new List<string>(), widget);
                 } catch (Error e) {
-                    stderr.printf("%s\n",e.message);
+                    stderr.printf ("%s\n", e.message);
                 }
             }
         }
-        private void activate_quit(GLib.SimpleAction action, Variant? param)
-        {
+
+        private void activate_quit (GLib.SimpleAction action, Variant? param) {
             try {
-                Posix.kill((Posix.pid_t)dbus.get_connection_unix_process_id(this.connection), Posix.SIGQUIT);
+                Posix.kill ((Posix.pid_t)dbus.get_connection_unix_process_id (this.connection), Posix.SIGQUIT);
             } catch (Error e) {
-                stderr.printf("%s\n",e.message);
+                stderr.printf ("%s\n", e.message);
             }
         }
-        private void activate_action(GLib.SimpleAction action, Variant? param)
-        {
-            var action_name = param.get_string();
-            info.launch_action(action_name,widget.get_display().get_app_launch_context());
+
+        private void activate_action (GLib.SimpleAction action, Variant? param) {
+            var action_name = param.get_string ();
+            info.launch_action (action_name, widget.get_display ().get_app_launch_context ());
         }
-        private void activate_unity(GLib.SimpleAction action, Variant? param)
-        {
-            unowned string action_name = param.get_string();
+
+        private void activate_unity (GLib.SimpleAction action, Variant? param) {
+            unowned string action_name = param.get_string ();
             try {
-                var keyfile = new KeyFile();
-                keyfile.load_from_file(info.get_filename(),KeyFileFlags.NONE);
-                var exec = keyfile.get_string(UNITY_QUICKLISTS_SHORTCUT_GROUP_NAME.printf(action_name),KeyFileDesktop.KEY_EXEC);
-                var appinfo  = AppInfo.create_from_commandline(exec,null,0) as DesktopAppInfo;
-                MenuMaker.launch(appinfo,new List<string>(),widget);
+                var keyfile = new KeyFile ();
+                keyfile.load_from_file (info.get_filename (), KeyFileFlags.NONE);
+                var exec = keyfile.get_string (UNITY_QUICKLISTS_SHORTCUT_GROUP_NAME.printf (action_name), KeyFileDesktop.KEY_EXEC);
+                var appinfo = AppInfo.create_from_commandline (exec, null, 0) as DesktopAppInfo;
+                MenuMaker.launch (appinfo, new List<string>(), widget);
             } catch (Error e) {
-                stderr.printf("%s\n",e.message);
+                stderr.printf ("%s\n", e.message);
             }
         }
+
     }
 }

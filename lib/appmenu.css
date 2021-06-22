@@ -19,8 +19,7 @@ menubar.-vala-panel-appmenu-bold > menuitem:first-child > label {
 }
 
 .-vala-panel-appmenu-private > separator {
-	
     background-color: transparent;
     background-image: none;
-	opacity: 0;
+    opacity: 0;
 }
