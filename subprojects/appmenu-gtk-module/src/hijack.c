@@ -170,7 +170,7 @@ static void hijacked_menu_bar_size_allocate(GtkWidget *widget, GtkAllocation *al
 
 	g_return_if_fail(GTK_IS_MENU_BAR(widget));
 
-	if (gtk_widget_shell_shows_menubar(widget))
+	if (gtk_widget_shell_shows_menubar(widget) && g_strcmp0 (g_type_name (G_TYPE_FROM_INSTANCE ((GObject*) gtk_widget_get_toplevel (widget))), "WingpanelPanelWindow") != 0)
 	{
 		/*
 		 * We manually assign an empty allocation to the menu bar to
@@ -201,7 +201,7 @@ static void hijacked_menu_bar_size_request(GtkWidget *widget, GtkRequisition *re
 	if (pre_hijacked_menu_bar_size_request != NULL)
 		pre_hijacked_menu_bar_size_request(widget, requisition);
 
-	if (gtk_widget_shell_shows_menubar(widget))
+	if (gtk_widget_shell_shows_menubar(widget) && g_strcmp0 (g_type_name (G_TYPE_FROM_INSTANCE ((GObject*) gtk_widget_get_toplevel (widget))), "WingpanelPanelWindow") != 0)
 	{
 		requisition->width  = 0;
 		requisition->height = 0;
@@ -216,7 +216,7 @@ static void hijacked_menu_bar_get_preferred_width(GtkWidget *widget, gint *minim
 	if (pre_hijacked_menu_bar_get_preferred_width != NULL)
 		pre_hijacked_menu_bar_get_preferred_width(widget, minimum_width, natural_width);
 
-	if (gtk_widget_shell_shows_menubar(widget))
+	if (gtk_widget_shell_shows_menubar(widget) && g_strcmp0 (g_type_name (G_TYPE_FROM_INSTANCE ((GObject*) gtk_widget_get_toplevel (widget))), "WingpanelPanelWindow") != 0)
 	{
 		*minimum_width = 0;
 		*natural_width = 0;
@@ -231,7 +231,7 @@ static void hijacked_menu_bar_get_preferred_height(GtkWidget *widget, gint *mini
 	if (pre_hijacked_menu_bar_get_preferred_height != NULL)
 		pre_hijacked_menu_bar_get_preferred_height(widget, minimum_height, natural_height);
 
-	if (gtk_widget_shell_shows_menubar(widget))
+	if (gtk_widget_shell_shows_menubar(widget) && g_strcmp0 (g_type_name (G_TYPE_FROM_INSTANCE ((GObject*) gtk_widget_get_toplevel (widget))), "WingpanelPanelWindow") != 0)
 	{
 		*minimum_height = 0;
 		*natural_height = 0;
@@ -250,7 +250,7 @@ static void hijacked_menu_bar_get_preferred_width_for_height(GtkWidget *widget, 
 		                                                     minimum_width,
 		                                                     natural_width);
 
-	if (gtk_widget_shell_shows_menubar(widget))
+	if (gtk_widget_shell_shows_menubar(widget) && g_strcmp0 (g_type_name (G_TYPE_FROM_INSTANCE ((GObject*) gtk_widget_get_toplevel (widget))), "WingpanelPanelWindow") != 0)
 	{
 		*minimum_width = 0;
 		*natural_width = 0;
@@ -269,7 +269,7 @@ static void hijacked_menu_bar_get_preferred_height_for_width(GtkWidget *widget, 
 		                                                     minimum_height,
 		                                                     natural_height);
 
-	if (gtk_widget_shell_shows_menubar(widget))
+	if (gtk_widget_shell_shows_menubar(widget) && g_strcmp0 (g_type_name (G_TYPE_FROM_INSTANCE ((GObject*) gtk_widget_get_toplevel (widget))), "WingpanelPanelWindow") != 0)
 	{
 		*minimum_height = 0;
 		*natural_height = 0;
