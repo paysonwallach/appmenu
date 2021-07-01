@@ -109,7 +109,6 @@ cmake.subproject('jayatana', required: get_option('jayatana'))
 subproject('appmenu-gtk-module', required: get_option('appmenu-gtk-module'))
 
 subdir('lib')
-subdir('applets')
 subdir('data')
 subdir('po')
 
